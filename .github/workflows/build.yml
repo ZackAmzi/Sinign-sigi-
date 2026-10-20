@@ -1,0 +1,109 @@
+name: Construire l'APK Sinignasigi
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Creer le projet Android
+        run: |
+          npm init -y
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          mkdir -p www
+          cp index.html www/index.html
+          npx cap init "Sinignãsigi" com.sinignasigi.app --web-dir www
+          npx cap add android
+
+      - name: Installer le logo (icone et ecran de demarrage)
+        run: |
+          pip install pillow
+          python3 - <<'PY'
+          import glob, os
+          from PIL import Image, ImageDraw
+
+          CREAM = (254, 248, 234)
+          RES = "android/app/src/main/res"
+          logo = Image.open("logo.png").convert("RGB")
+
+          def rounded(img, ratio):
+              size = img.size[0]
+              mask = Image.new("L", img.size, 0)
+              ImageDraw.Draw(mask).rounded_rectangle((0, 0, size - 1, size - 1), radius=int(size * ratio), fill=255)
+              out = img.convert("RGBA")
+              out.putalpha(mask)
+              return out
+
+          def circle(img):
+              mask = Image.new("L", img.size, 0)
+              ImageDraw.Draw(mask).ellipse((0, 0, img.size[0] - 1, img.size[1] - 1), fill=255)
+              out = img.convert("RGBA")
+              out.putalpha(mask)
+              return out
+
+          legacy = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
+          adaptive = {"mdpi": 108, "hdpi": 162, "xhdpi": 216, "xxhdpi": 324, "xxxhdpi": 432}
+
+          for d in legacy:
+              folder = f"{RES}/mipmap-{d}"
+              os.makedirs(folder, exist_ok=True)
+              s = legacy[d]
+              small = logo.resize((s, s), Image.LANCZOS)
+              rounded(small, 0.18).save(f"{folder}/ic_launcher.png")
+              circle(small).save(f"{folder}/ic_launcher_round.png")
+              f = adaptive[d]
+              inner = int(f * 0.64)
+              canvas = Image.new("RGBA", (f, f), (0, 0, 0, 0))
+              art = logo.resize((inner, inner), Image.LANCZOS).convert("RGBA")
+              canvas.paste(art, ((f - inner) // 2, (f - inner) // 2))
+              canvas.save(f"{folder}/ic_launcher_foreground.png")
+
+          os.makedirs(f"{RES}/values", exist_ok=True)
+          with open(f"{RES}/values/ic_launcher_background.xml", "w", encoding="utf-8") as fh:
+              fh.write('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#FEF8EA</color>\n</resources>\n')
+
+          for path in glob.glob(f"{RES}/drawable*/splash.png"):
+              w, h = Image.open(path).size
+              screen = Image.new("RGB", (w, h), CREAM)
+              side = int(min(w, h) * 0.42)
+              art = logo.resize((side, side), Image.LANCZOS)
+              screen.paste(art, ((w - side) // 2, (h - side) // 2))
+              screen.save(path)
+              print("ecran de demarrage :", path)
+          PY
+          npx cap sync android
+
+      - name: Compiler l'application
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Preparer le fichier APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk Sinignasigi.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sinignasigi-apk
+          path: Sinignasigi.apk
+
+      - name: Publier l'APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Sinignasigi v${{ github.run_number }}
+          files: Sinignasigi.apk
