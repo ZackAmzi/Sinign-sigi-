@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F1F4EF">
+<title>Sinignãsigi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { -webkit-tap-highlight-color: transparent; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<style>
+/* Layout: une colonne sur téléphone (salaire, répartition, durée, prévision),
+   deux colonnes dès 900px (réglages à gauche, prévision à droite).
+   Motif de la marque : une bande tissée dont les rayures suivent la répartition. */
+:root {
+  --bg: #F1F4EF;
+  --surface: #FFFFFF;
+  --surface-2: #F6F8F4;
+  --ink: #14231F;
+  --muted: #56655F;
+  --line: #DCE3DB;
+  --track: #DDE4DC;
+  --c-besoins: #34508C;
+  --c-envies: #C4492F;
+  --c-epargne: #1E7A57;
+  --c-invest: #D79A1B;
+  --on-besoins: #FFFFFF;
+  --on-envies: #FFFFFF;
+  --on-epargne: #FFFFFF;
+  --on-invest: #1B1405;
+  --warn: #B3321B;
+  --shadow: 0 1px 2px rgba(20, 35, 31, .06), 0 10px 28px rgba(20, 35, 31, .07);
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1815;
+    --surface: #15241F;
+    --surface-2: #1B2C26;
+    --ink: #EAF1EC;
+    --muted: #9DB0A6;
+    --line: #26392F;
+    --track: #2B3F36;
+    --c-besoins: #7F9BE3;
+    --c-envies: #EE7C60;
+    --c-epargne: #4FC596;
+    --c-invest: #F0BB4A;
+    --on-besoins: #0B1220;
+    --on-envies: #2A0D06;
+    --on-epargne: #05281B;
+    --on-invest: #2A1C02;
+    --warn: #FF8E78;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .28);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1815;
+  --surface: #15241F;
+  --surface-2: #1B2C26;
+  --ink: #EAF1EC;
+  --muted: #9DB0A6;
+  --line: #26392F;
+  --track: #2B3F36;
+  --c-besoins: #7F9BE3;
+  --c-envies: #EE7C60;
+  --c-epargne: #4FC596;
+  --c-invest: #F0BB4A;
+  --on-besoins: #0B1220;
+  --on-envies: #2A0D06;
+  --on-epargne: #05281B;
+  --on-invest: #2A1C02;
+  --warn: #FF8E78;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .28);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-text-size-adjust: 100%;
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--c-invest); outline-offset: 2px; }
+
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 18px; }
+
+/* En-tête */
+.brand { display: grid; gap: 4px; padding: 6px 2px 2px; }
+.brand h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.2rem, 8vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+.brand p { margin: 0; color: var(--muted); max-width: 46ch; }
+
+/* Grille principale */
+.app { display: grid; gap: 18px; align-items: start; }
+.col { display: grid; gap: 18px; min-width: 0; }
+@media (min-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 22px; }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.card h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+
+/* Salaire */
+.salary-field {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 4px;
+}
+.salary-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 9vw, 2.8rem);
+  letter-spacing: -0.02em;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+.salary-field input:focus-visible { outline: none; }
+.salary-field:focus-within { border-bottom-color: var(--c-invest); }
+.salary-field span { font-weight: 700; color: var(--muted); }
+.field-msg { min-height: 1.4em; margin: 6px 0 0; font-size: .875rem; color: var(--muted); }
+.field-msg.err { color: var(--warn); font-weight: 600; }
+.salary-range { margin-top: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: .875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Curseurs */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 30px;
+  margin: 0;
+  background: transparent;
+  --c: var(--ink);
+  --p: 0%;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 99px;
+  background: linear-gradient(to right, var(--c) var(--p), var(--track) var(--p));
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -9px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 4px solid var(--c);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+}
+input[type="range"]::-moz-range-track { height: 8px; border-radius: 99px; background: var(--track); }
+input[type="range"]::-moz-range-progress { height: 8px; border-radius: 99px; background: var(--c); }
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 4px solid var(--c);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+}
+
+/* Répartition */
+.presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.preset {
+  display: grid;
+  gap: 7px;
+  text-align: left;
+  border: 1.5px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 14px;
+  padding: 10px 11px;
+  font-weight: 700;
+  font-size: .875rem;
+  line-height: 1.15;
+}
+.preset[aria-pressed="true"] { border-color: var(--ink); background: var(--surface); box-shadow: inset 0 0 0 1px var(--ink); }
+.mini { display: flex; height: 6px; border-radius: 99px; overflow: hidden; background: var(--track); }
+.mini i { display: block; height: 100%; }
+.caption { margin: 12px 0 14px; color: var(--muted); font-size: .9rem; min-height: 2.8em; }
+
+.pagne {
+  display: flex;
+  height: 64px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--track);
+  margin-bottom: 6px;
+}
+.seg {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  white-space: nowrap;
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .17) 0 2px, transparent 2px 8px);
+  transition: width .35s ease;
+}
+.seg-besoins { background-color: var(--c-besoins); color: var(--on-besoins); }
+.seg-envies { background-color: var(--c-envies); color: var(--on-envies); }
+.seg-epargne { background-color: var(--c-epargne); color: var(--on-epargne); }
+.seg-invest { background-color: var(--c-invest); color: var(--on-invest); }
+
+.rows { display: grid; gap: 4px; }
+.row { padding: 12px 0; border-top: 1px solid var(--line); display: grid; gap: 8px; }
+.row:first-child { border-top: 0; }
+.row-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; flex: none; }
+.row-name { display: grid; min-width: 0; }
+.row-name strong { font-weight: 700; }
+.row-name small { color: var(--muted); font-size: .8rem; line-height: 1.3; }
+.row-amt { text-align: right; display: grid; }
+.row-amt span {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.row-amt small { color: var(--muted); font-size: .72rem; }
+.row-ctl { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px 52px; gap: 6px; align-items: center; }
+.step {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.step:disabled { opacity: .4; cursor: default; }
+.pct { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sumline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 2px solid var(--ink);
+  padding-top: 12px;
+  margin-top: 4px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.hint { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
+
+/* Durée */
+.dur { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.stepper { border: 1px solid var(--line); background: var(--surface-2); border-radius: 16px; padding: 10px; display: grid; gap: 6px; justify-items: center; }
+.stepper label { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.stepper .ctl { display: flex; align-items: center; gap: 10px; }
+.stepper output {
+  min-width: 2.2ch;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.stepper small { color: var(--muted); font-size: .78rem; }
+.dur-total { margin: 12px 0 0; color: var(--muted); font-size: .9rem; }
+.dur-total b { color: var(--ink); }
+
+/* Prévision */
+.empty { padding: 28px 8px; text-align: center; color: var(--muted); }
+.total { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.total .label { flex-basis: 100%; font-size: .85rem; color: var(--muted); font-weight: 600; }
+.total strong {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.1rem, 9vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.total span.cur { font-weight: 700; color: var(--muted); }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+.pair div { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface-2); display: grid; gap: 2px; min-width: 0; }
+.pair .tag { display: flex; align-items: center; gap: 7px; font-size: .8rem; color: var(--muted); font-weight: 600; }
+.pair b { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .82rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+#chart { width: 100%; min-width: 0; }
+#chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+#chart text { font-family: var(--font-body); font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+#chart .grid { stroke: var(--line); stroke-width: 1; }
+#chart .bar { opacity: .5; transition: opacity .15s; }
+#chart .bar.on { opacity: 1; }
+#chart .b-e { fill: var(--c-epargne); }
+#chart .b-i { fill: var(--c-invest); }
+#chart .hit { fill: transparent; cursor: pointer; outline: none; }
+#chart .hit:focus-visible { stroke: var(--ink); stroke-width: 2; }
+#chart .mark { fill: var(--ink); }
+
+.detail {
+  margin-top: 10px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+  display: grid;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.detail h3 { margin: 0; font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+.detail .l { display: flex; justify-content: space-between; gap: 12px; font-size: .92rem; }
+.detail .l.t { font-weight: 800; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 2px; }
+.insight { margin: 16px 0 0; padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--c-epargne); font-size: .92rem; }
+.spent { margin: 16px 0 0; display: grid; gap: 6px; }
+.spent div { display: flex; justify-content: space-between; gap: 12px; font-size: .92rem; font-variant-numeric: tabular-nums; }
+.spent dt { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.spent dd { margin: 0; font-weight: 700; }
+details { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-weight: 700; }
+.tbl { overflow-x: auto; margin-top: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.note { margin: 16px 0 0; font-size: .8rem; color: var(--muted); max-width: 62ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .seg, #chart .bar { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <h1>Sinignãsigi</h1>
+    <p>Répartis ton salaire et vois ce qu'il devient, mois après mois.</p>
+  </header>
+
+  <main class="app">
+    <div class="col">
+      <section class="card" aria-labelledby="h-salaire">
+        <p class="eyebrow">1 · Salaire</p>
+        <h2 id="h-salaire">Combien gagnes-tu par mois ?</h2>
+        <label class="field-msg" for="salary" style="display:block;margin:0 0 6px;min-height:0">Salaire mensuel net</label>
+        <div class="salary-field">
+          <input id="salary" type="text" inputmode="numeric" autocomplete="off" aria-describedby="salary-msg">
+          <span>FCFA</span>
+        </div>
+        <p id="salary-msg" class="field-msg" role="status">Entre 50 000 et 10 000 000 FCFA.</p>
+        <div class="salary-range">
+          <input id="salary-range" type="range" min="0" max="1000" step="1" aria-label="Faire glisser pour choisir le salaire">
+        </div>
+        <div class="chips" id="salary-chips" role="group" aria-label="Salaires courants"></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-rep">
+        <p class="eyebrow">2 · Répartition</p>
+        <h2 id="h-rep">Où va chaque franc ?</h2>
+        <div class="presets" id="presets" role="group" aria-label="Répartitions toutes faites"></div>
+        <p class="caption" id="caption"></p>
+        <div class="pagne" id="pagne" aria-hidden="true"></div>
+        <div class="rows" id="rows"></div>
+        <div class="sumline"><span>Total chaque mois</span><span id="sum">0 FCFA</span></div>
+        <p class="hint">Quand tu changes un poste, les autres s'ajustent pour que le total reste à 100 %.</p>
+      </section>
+
+      <section class="card" aria-labelledby="h-duree">
+        <p class="eyebrow">3 · Durée</p>
+        <h2 id="h-duree">Sur combien de temps ?</h2>
+        <div class="dur">
+          <div class="stepper">
+            <label for="years">Années</label>
+            <div class="ctl">
+              <button type="button" class="step" id="years-dec" aria-label="Une année de moins">−</button>
+              <output id="years" for="years-dec years-inc">1</output>
+              <button type="button" class="step" id="years-inc" aria-label="Une année de plus">+</button>
+            </div>
+            <small>de 0 à 15</small>
+          </div>
+          <div class="stepper">
+            <label for="months">Mois</label>
+            <div class="ctl">
+              <button type="button" class="step" id="months-dec" aria-label="Un mois de moins">−</button>
+              <output id="months" for="months-dec months-inc">0</output>
+              <button type="button" class="step" id="months-inc" aria-label="Un mois de plus">+</button>
+            </div>
+            <small>de 0 à 12</small>
+          </div>
+        </div>
+        <div class="chips" id="dur-chips" role="group" aria-label="Durées courantes"></div>
+        <p class="dur-total" id="dur-total"></p>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card results" aria-labelledby="h-proj">
+        <p class="eyebrow">4 · Prévision</p>
+        <h2 id="h-proj">Dans <span id="proj-dur">1 an</span></h2>
+
+        <div class="empty" id="proj-empty" hidden>
+          Choisis au moins 1 mois dans la durée pour voir ce que ta répartition donne.
+        </div>
+
+        <div id="proj-body">
+          <div class="total">
+            <span class="label">Mis de côté au total</span>
+            <strong id="tot">0</strong><span class="cur">FCFA</span>
+          </div>
+          <div class="pair">
+            <div><span class="tag"><i class="dot" style="background:var(--c-epargne)"></i>Épargne fixe</span><b id="tot-e">0</b></div>
+            <div><span class="tag"><i class="dot" style="background:var(--c-invest)"></i>Investissement</span><b id="tot-i">0</b></div>
+          </div>
+
+          <div class="legend" aria-hidden="true">
+            <span><i style="background:var(--c-epargne)"></i>Épargne fixe</span>
+            <span><i style="background:var(--c-invest)"></i>Investissement</span>
+            <span id="legend-hint">Touche une colonne pour le détail</span>
+          </div>
+          <div id="chart"></div>
+          <div class="detail" id="detail" aria-live="polite"></div>
+
+          <p class="insight" id="urgence"></p>
+
+          <dl class="spent">
+            <div><dt><i class="dot" style="background:var(--c-besoins)"></i>Besoins couverts</dt><dd id="sp-b">0</dd></div>
+            <div><dt><i class="dot" style="background:var(--c-envies)"></i>Envies dépensées</dt><dd id="sp-e">0</dd></div>
+          </dl>
+
+          <details>
+            <summary>Détail période par période</summary>
+            <div class="tbl">
+              <table>
+                <thead><tr><th>Période</th><th>Épargne</th><th>Invest.</th><th>Total</th></tr></thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </details>
+
+          <p class="note">Les montants sont ceux que tu verses chaque mois, sans intérêts, sans gains ni frais. La valeur réelle d'un placement en bourse peut être plus haute ou plus basse que le capital versé.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  var MIN = 50000, MAX = 10000000, STORE = "sinignasigi:v1";
+  var CATS = [
+    { id: "besoins", name: "Besoins", hint: "Loyer, nourriture, transport, factures" },
+    { id: "envies", name: "Envies", hint: "Sorties, loisirs, petits plaisirs" },
+    { id: "epargne", name: "Épargne fixe", hint: "Fonds d'urgence et projets" },
+    { id: "invest", name: "Investissement", hint: "Placement régulier en bourse" }
+  ];
+  var PRESETS = [
+    { name: "Ma répartition", ratio: [25, 25, 30, 20], caption: "25 % besoins, 25 % envies, 30 % épargne fixe et 20 % investissement." },
+    { name: "50/30/20", ratio: [50, 30, 20, 0], caption: "50 % besoins, 30 % envies, 20 % épargne. C'est la règle la plus répandue." },
+    { name: "60/20/20", ratio: [60, 20, 20, 0], caption: "60 % besoins, 20 % envies, 20 % épargne. Utile quand les charges fixes sont élevées." },
+    { name: "70/20/10", ratio: [70, 10, 20, 0], caption: "70 % besoins, 20 % épargne, 10 % envies. Pensée pour un petit salaire." },
+    { name: "40/30/30", ratio: [40, 30, 30, 0], caption: "40 % besoins, 30 % envies, 30 % épargne. Convient quand les charges sont légères." }
+  ];
+  var SALARY_CHIPS = [100000, 250000, 500000, 1000000, 2500000, 5000000];
+  var DUR_CHIPS = [[0, 6], [1, 0], [2, 0], [5, 0], [10, 0], [15, 0]];
+
+  function $(id) { return document.getElementById(id); }
+  function nb(n) { return Math.round(n).toLocaleString("fr-FR").replace(/[  ]/g, " "); }
+  function fcfa(n) { return nb(n) + " FCFA"; }
+  function compact(v) {
+    var s;
+    if (v >= 1e6) s = (v / 1e6).toLocaleString("fr-FR", { maximumFractionDigits: 2 }) + " M";
+    else if (v >= 1000) s = (v / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " k";
+    else s = String(v);
+    return s.replace(/[ ]/g, " ");
+  }
+  function dur(m) {
+    var y = Math.floor(m / 12), r = m % 12, p = [];
+    if (y) p.push(y + (y > 1 ? " ans" : " an"));
+    if (r) p.push(r + " mois");
+    return p.length ? p.join(" et ") : "0 mois";
+  }
+  function durShort(m) {
+    var y = Math.floor(m / 12), r = m % 12;
+    if (m < 12) return m + " m";
+    if (!r) return y + (y > 1 ? " ans" : " an");
+    return y + " a " + r + " m";
+  }
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+
+  /* Répartit un total entier selon des poids, sans perdre un seul franc. */
+  function apportion(total, weights) {
+    var w = weights.slice(), s = w.reduce(function (a, b) { return a + b; }, 0);
+    if (s <= 0) { w = w.map(function () { return 1; }); s = w.length; }
+    var raw = w.map(function (x) { return x * total / s; });
+    var fl = raw.map(Math.floor);
+    var rest = total - fl.reduce(function (a, b) { return a + b; }, 0);
+    var order = raw.map(function (r, i) { return [r - fl[i], i]; }).sort(function (a, b) { return b[0] - a[0] || a[1] - b[1]; });
+    for (var k = 0; k < rest; k++) fl[order[k][1]]++;
+    return fl;
+  }
+
+  /* État */
+  var st = { salary: 500000, pct: [25, 25, 30, 20], years: 1, months: 0 };
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (saved && typeof saved.salary === "number" && saved.salary >= MIN && saved.salary <= MAX &&
+        Array.isArray(saved.pct) && saved.pct.length === 4 &&
+        saved.pct.reduce(function (a, b) { return a + b; }, 0) === 100 &&
+        saved.years >= 0 && saved.years <= 15 && saved.months >= 0 && saved.months <= 12) {
+      st = saved;
+    }
+  } catch (e) {}
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch (e) {} }
+
+  var sel = null;
+
+  /* Construction une seule fois */
+  var salaryEl = $("salary"), salaryRange = $("salary-range"), salaryMsg = $("salary-msg");
+  var LN = Math.log(MAX / MIN);
+  function tFromSalary(s) { return Math.round(Math.log(s / MIN) / LN * 1000); }
+  function salaryFromT(t) {
+    var s = MIN * Math.exp(LN * t / 1000);
+    var step = s < 200000 ? 5000 : s < 1000000 ? 10000 : s < 5000000 ? 50000 : 100000;
+    return clamp(Math.round(s / step) * step, MIN, MAX);
+  }
+  function setRangeFill(el, value, max) { el.style.setProperty("--p", (value / max * 100) + "%"); }
+
+  SALARY_CHIPS.forEach(function (v) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = nb(v); b.dataset.v = v;
+    b.addEventListener("click", function () { st.salary = v; syncSalaryInput(); setMsg("", false); update(); });
+    $("salary-chips").appendChild(b);
+  });
+  DUR_CHIPS.forEach(function (d) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = dur(d[0] * 12 + d[1]);
+    b.dataset.y = d[0]; b.dataset.m = d[1];
+    b.addEventListener("click", function () { st.years = d[0]; st.months = d[1]; sel = null; update(); });
+    $("dur-chips").appendChild(b);
+  });
+
+  function syncSalaryInput() {
+    salaryEl.value = nb(st.salary);
+    salaryRange.value = tFromSalary(st.salary);
+  }
+  function setMsg(t, err) {
+    salaryMsg.textContent = t || "Entre 50 000 et 10 000 000 FCFA.";
+    salaryMsg.className = "field-msg" + (err ? " err" : "");
+  }
+  salaryEl.addEventListener("input", function () {
+    var digits = salaryEl.value.replace(/\D/g, "").slice(0, 9);
+    var n = digits ? parseInt(digits, 10) : 0;
+    salaryEl.value = digits ? nb(n) : "";
+    try { salaryEl.setSelectionRange(salaryEl.value.length, salaryEl.value.length); } catch (e) {}
+    if (n >= MIN && n <= MAX) {
+      st.salary = n; salaryRange.value = tFromSalary(n); setMsg("", false); update();
+    } else if (digits) {
+      setMsg(n < MIN ? "Le salaire minimum accepté est 50 000 FCFA." : "Le salaire maximum accepté est 10 000 000 FCFA.", true);
+    } else {
+      setMsg("Saisis ton salaire mensuel.", true);
+    }
+  });
+  salaryEl.addEventListener("blur", function () {
+    var digits = salaryEl.value.replace(/\D/g, "");
+    var n = digits ? clamp(parseInt(digits, 10), MIN, MAX) : st.salary;
+    st.salary = n; syncSalaryInput(); setMsg("", false); update();
+  });
+  salaryRange.addEventListener("input", function () {
+    st.salary = salaryFromT(+salaryRange.value);
+    salaryEl.value = nb(st.salary); setMsg("", false); update();
+  });
+
+  /* Présélections */
+  PRESETS.forEach(function (p, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "preset"; b.dataset.i = i;
+    b.innerHTML = "<span>" + p.name + "</span><span class=\"mini\">" +
+      p.ratio.map(function (r, k) { return "<i style=\"width:" + r + "%;background:var(--c-" + CATS[k].id + ")\"></i>"; }).join("") + "</span>";
+    b.addEventListener("click", function () { st.pct = p.ratio.slice(); update(); });
+    $("presets").appendChild(b);
+  });
+
+  /* Bande tissée */
+  CATS.forEach(function (c) {
+    var d = document.createElement("div");
+    d.className = "seg seg-" + c.id; d.id = "seg-" + c.id;
+    $("pagne").appendChild(d);
+  });
+
+  /* Lignes de répartition */
+  function setPct(i, v) {
+    v = clamp(Math.round(v), 0, 100);
+    var idx = [0, 1, 2, 3].filter(function (k) { return k !== i; });
+    var alloc = apportion(100 - v, idx.map(function (k) { return st.pct[k]; }));
+    var next = st.pct.slice();
+    next[i] = v;
+    idx.forEach(function (k, j) { next[k] = alloc[j]; });
+    st.pct = next;
+    update();
+  }
+  CATS.forEach(function (c, i) {
+    var row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML =
+      "<div class=\"row-top\"><span class=\"dot\" style=\"background:var(--c-" + c.id + ")\"></span>" +
+      "<div class=\"row-name\"><strong>" + c.name + "</strong><small>" + c.hint + "</small></div>" +
+      "<div class=\"row-amt\"><span id=\"amt-" + i + "\">0</span><small>FCFA par mois</small></div></div>" +
+      "<div class=\"row-ctl\">" +
+      "<button type=\"button\" class=\"step\" id=\"dec-" + i + "\" aria-label=\"1 % de moins pour " + c.name + "\">−</button>" +
+      "<input type=\"range\" id=\"rng-" + i + "\" min=\"0\" max=\"100\" step=\"1\" style=\"--c:var(--c-" + c.id + ")\" aria-label=\"Part de " + c.name + " en pourcentage\">" +
+      "<button type=\"button\" class=\"step\" id=\"inc-" + i + "\" aria-label=\"1 % de plus pour " + c.name + "\">+</button>" +
+      "<output class=\"pct\" id=\"pct-" + i + "\">0 %</output></div>";
+    $("rows").appendChild(row);
+    $("rng-" + i).addEventListener("input", function (e) { setPct(i, +e.target.value); });
+    $("dec-" + i).addEventListener("click", function () { setPct(i, st.pct[i] - 1); });
+    $("inc-" + i).addEventListener("click", function () { setPct(i, st.pct[i] + 1); });
+  });
+
+  /* Durée */
+  $("years-dec").addEventListener("click", function () { st.years = clamp(st.years - 1, 0, 15); sel = null; update(); });
+  $("years-inc").addEventListener("click", function () { st.years = clamp(st.years + 1, 0, 15); sel = null; update(); });
+  $("months-dec").addEventListener("click", function () { st.months = clamp(st.months - 1, 0, 12); sel = null; update(); });
+  $("months-inc").addEventListener("click", function () { st.months = clamp(st.months + 1, 0, 12); sel = null; update(); });
+
+  /* Graphique */
+  var periods = [], amts = [0, 0, 0, 0];
+  function niceStep(x) {
+    var e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e;
+  }
+  function drawChart() {
+    var box = $("chart");
+    var n = periods.length;
+    if (!n) { box.innerHTML = ""; return; }
+    var W = Math.max(280, box.clientWidth), H = 232;
+    var m = { l: 46, r: 6, t: 12, b: 30 };
+    var pw = W - m.l - m.r, ph = H - m.t - m.b;
+    var maxV = Math.max.apply(null, periods.map(function (p) { return p.t; }));
+    var step = maxV > 0 ? niceStep(maxV / 4) : 1;
+    var yMax = maxV > 0 ? Math.ceil(maxV / step - 1e-9) * step : 1;
+    var s = "<svg viewBox=\"0 0 " + W + " " + H + "\" role=\"img\" aria-label=\"Épargne et investissement cumulés\">";
+    for (var v = 0; v <= yMax + step * 1e-6; v += step) {
+      var y = m.t + ph - v / yMax * ph;
+      s += "<line class=\"grid\" x1=\"" + m.l + "\" x2=\"" + (W - m.r) + "\" y1=\"" + y.toFixed(1) + "\" y2=\"" + y.toFixed(1) + "\"/>";
+      s += "<text x=\"" + (m.l - 6) + "\" y=\"" + (y + 4).toFixed(1) + "\" text-anchor=\"end\">" + (maxV > 0 ? compact(v) : "0") + "</text>";
+      if (maxV <= 0) break;
+    }
+    var bw = pw / n, barW = Math.min(bw * 0.7, 46);
+    var cur = sel === null ? n - 1 : clamp(sel, 0, n - 1);
+    var maxLabels = Math.max(2, Math.floor(pw / 56)), every = Math.ceil(n / maxLabels);
+    var labelIdx = [];
+    for (var i = 0; i < n; i++) if ((i + 1) % every === 0) labelIdx.push(i);
+    if (labelIdx[labelIdx.length - 1] !== n - 1) {
+      if (labelIdx.length && (n - 1) - labelIdx[labelIdx.length - 1] < every * 0.6) labelIdx.pop();
+      labelIdx.push(n - 1);
+    }
+    for (var j = 0; j < n; j++) {
+      var p = periods[j];
+      var cx = m.l + bw * (j + 0.5), x0 = cx - barW / 2;
+      var he = p.e / yMax * ph, hi = p.v / yMax * ph;
+      var cls = "bar" + (j === cur ? " on" : "");
+      s += "<g class=\"" + cls + "\">";
+      if (he > 0) s += "<rect class=\"b-e\" x=\"" + x0.toFixed(1) + "\" y=\"" + (m.t + ph - he).toFixed(1) + "\" width=\"" + barW.toFixed(1) + "\" height=\"" + he.toFixed(1) + "\" rx=\"2\"/>";
+      if (hi > 0) s += "<rect class=\"b-i\" x=\"" + x0.toFixed(1) + "\" y=\"" + (m.t + ph - he - hi).toFixed(1) + "\" width=\"" + barW.toFixed(1) + "\" height=\"" + hi.toFixed(1) + "\" rx=\"2\"/>";
+      s += "</g>";
+      if (labelIdx.indexOf(j) > -1) {
+        s += "<text x=\"" + cx.toFixed(1) + "\" y=\"" + (H - 10) + "\" text-anchor=\"middle\"" + (j === cur ? " style=\"fill:var(--ink);font-weight:700\"" : "") + ">" + durShort(p.m) + "</text>";
+      }
+      s += "<rect class=\"hit\" data-i=\"" + j + "\" x=\"" + (cx - bw / 2).toFixed(1) + "\" y=\"" + m.t + "\" width=\"" + bw.toFixed(1) + "\" height=\"" + ph + "\" tabindex=\"0\" role=\"button\" aria-label=\"Après " + dur(p.m) + " : " + nb(p.t) + " FCFA mis de côté\"/>";
+    }
+    s += "</svg>";
+    box.innerHTML = s;
+  }
+  function drawDetail() {
+    var n = periods.length; if (!n) return;
+    var p = periods[sel === null ? n - 1 : clamp(sel, 0, n - 1)];
+    $("detail").innerHTML =
+      "<h3>Après " + dur(p.m) + "</h3>" +
+      "<div class=\"l\"><span>Épargne fixe</span><span>" + fcfa(p.e) + "</span></div>" +
+      "<div class=\"l\"><span>Investissement</span><span>" + fcfa(p.v) + "</span></div>" +
+      "<div class=\"l t\"><span>Total mis de côté</span><span>" + fcfa(p.t) + "</span></div>";
+  }
+  function pick(i, focus) {
+    sel = i; drawChart(); drawDetail();
+    if (focus) { var h = $("chart").querySelector(".hit[data-i=\"" + i + "\"]"); if (h) h.focus(); }
+  }
+  $("chart").addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest(".hit") : null;
+    if (t) pick(+t.getAttribute("data-i"), true);
+  });
+  $("chart").addEventListener("keydown", function (e) {
+    var t = e.target; if (!t || !t.classList || !t.classList.contains("hit")) return;
+    var i = +t.getAttribute("data-i");
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(i, true); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); pick(clamp(i + 1, 0, periods.length - 1), true); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); pick(clamp(i - 1, 0, periods.length - 1), true); }
+  });
+  if (window.ResizeObserver) new ResizeObserver(function () { drawChart(); }).observe($("chart"));
+  else window.addEventListener("resize", drawChart);
+
+  /* Mise à jour de tout l'écran */
+  function update() {
+    amts = apportion(st.salary, st.pct);
+    var N = st.years * 12 + st.months;
+
+    CATS.forEach(function (c, i) {
+      var seg = $("seg-" + c.id);
+      seg.style.width = st.pct[i] + "%";
+      seg.textContent = st.pct[i] >= 9 ? st.pct[i] + " %" : "";
+      $("amt-" + i).textContent = nb(amts[i]);
+      $("pct-" + i).textContent = st.pct[i] + " %";
+      var r = $("rng-" + i); r.value = st.pct[i]; setRangeFill(r, st.pct[i], 100);
+      $("dec-" + i).disabled = st.pct[i] <= 0;
+      $("inc-" + i).disabled = st.pct[i] >= 100;
+    });
+    $("sum").textContent = "100 % · " + fcfa(st.salary);
+    setRangeFill(salaryRange, +salaryRange.value, 1000);
+
+    var match = -1;
+    PRESETS.forEach(function (p, i) {
+      var same = p.ratio.every(function (x, k) { return x === st.pct[k]; });
+      if (same) match = i;
+    });
+    var pb = $("presets").children;
+    for (var i = 0; i < pb.length; i++) pb[i].setAttribute("aria-pressed", i === match ? "true" : "false");
+    $("caption").textContent = match > -1 ? PRESETS[match].caption :
+      "Répartition personnalisée : " + st.pct[0] + " % besoins, " + st.pct[1] + " % envies, " + st.pct[2] + " % épargne fixe, " + st.pct[3] + " % investissement.";
+
+    var sc = $("salary-chips").children;
+    for (var a = 0; a < sc.length; a++) sc[a].setAttribute("aria-pressed", +sc[a].dataset.v === st.salary ? "true" : "false");
+    var dc = $("dur-chips").children;
+    for (var d = 0; d < dc.length; d++) dc[d].setAttribute("aria-pressed", (+dc[d].dataset.y === st.years && +dc[d].dataset.m === st.months) ? "true" : "false");
+
+    $("years").textContent = st.years;
+    $("months").textContent = st.months;
+    $("years-dec").disabled = st.years <= 0; $("years-inc").disabled = st.years >= 15;
+    $("months-dec").disabled = st.months <= 0; $("months-inc").disabled = st.months >= 12;
+    $("dur-total").innerHTML = N ? "Soit <b>" + N + " mois</b> de versements." : "Aucune durée choisie.";
+    $("proj-dur").textContent = dur(N);
+
+    $("proj-empty").hidden = N !== 0;
+    $("proj-body").hidden = N === 0;
+
+    periods = [];
+    if (N > 0) {
+      var marks = [];
+      if (N <= 24) { for (var m1 = 1; m1 <= N; m1++) marks.push(m1); }
+      else { for (var y = 1; y * 12 <= N; y++) marks.push(y * 12); if (N % 12) marks.push(N); }
+      periods = marks.map(function (mm) { return { m: mm, e: amts[2] * mm, v: amts[3] * mm, t: (amts[2] + amts[3]) * mm }; });
+      var last = periods[periods.length - 1];
+      $("tot").textContent = nb(last.t);
+      $("tot-e").textContent = fcfa(last.e);
+      $("tot-i").textContent = fcfa(last.v);
+      $("sp-b").textContent = fcfa(amts[0] * N);
+      $("sp-e").textContent = fcfa(amts[1] * N);
+
+      var u = $("urgence");
+      if (amts[0] <= 0) {
+        u.textContent = "Aucun besoin dans cette répartition. Prévois quand même un fonds d'urgence de quelques mois de dépenses.";
+      } else if (amts[2] <= 0) {
+        u.textContent = "Aucune épargne fixe dans cette répartition. Un fonds d'urgence de 3 mois de besoins (" + fcfa(amts[0] * 3) + ") est à construire avant d'investir.";
+      } else {
+        var target = amts[0] * 3, mm2 = Math.ceil(target / amts[2]);
+        u.textContent = "Fonds d'urgence de 3 mois de besoins (" + fcfa(target) + ") : atteint au bout de " + dur(mm2) +
+          " avec ton épargne fixe" + (mm2 > N ? ", donc après la durée choisie." : ".");
+      }
+      $("legend-hint").hidden = periods.length < 2;
+
+      var rows = "";
+      periods.forEach(function (p) {
+        rows += "<tr><td>" + dur(p.m) + "</td><td>" + nb(p.e) + "</td><td>" + nb(p.v) + "</td><td><b>" + nb(p.t) + "</b></td></tr>";
+      });
+      $("tbody").innerHTML = rows;
+    }
+    if (sel !== null && sel > periods.length - 1) sel = null;
+    drawChart(); drawDetail();
+    save();
+  }
+
+  syncSalaryInput();
+  update();
+})();
+</script>
+</body>
+</html>
